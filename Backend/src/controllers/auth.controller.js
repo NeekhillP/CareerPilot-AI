@@ -124,3 +124,22 @@ export async function logoutUserController(req, res){
         })
     } 
 }
+
+
+/**
+ * @name getMeController
+ * @description Controller to get the currently logged in user details
+ * @access Private
+ */
+export async function getMeController(req, res){
+    const user = req.user;
+
+    res.status(200).json({
+        message: "User details fetched successfully",
+        user: {
+            id: user._id,
+            username: user.username,
+            email: user.email
+        }
+    });
+}
