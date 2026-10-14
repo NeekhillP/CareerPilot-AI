@@ -116,13 +116,13 @@ export async function logoutUserController(req, res){
         await blackListTokenModel.create({
             token
         })
+    }
 
-        res.clearCookie("token");
+    res.clearCookie("token");
 
-        res.status(200).json({
-            message: "User logged out successfully"
-        })
-    } 
+    res.status(200).json({
+        message: "User logged out successfully"
+    })
 }
 
 

@@ -1,15 +1,27 @@
-import { Link } from 'react-router'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router'
 import AuthLayout from '../Components/AuthLayout'
 import PasswordField from '../Components/PasswordField'
-import {useNavigate} from 'react-router'
+import {useAuth} from '../Hooks/useAuth'
 
 const Register = () => {
        
     const navigate = useNavigate()
+    const {loading, handleRegister} = useAuth()
+    const [username, setUsername] = useState('')
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
 
-    const handleSumbit = (e)=>{
+    const handleSumbit = async (e)=>{
         e.preventDefault()
 
+        if(loading) return
+
+        const userData = await handleRegister({username, email, password})
+
+        if(userData){
+            navigate('/')
+        }
     }
 
   return (
@@ -24,15 +36,21 @@ const Register = () => {
         <form className="auth-form" noValidate onSubmit={handleSumbit}>
             <div className="auth-field">
                 <label htmlFor="username">Username</label>
-                <input id="username" name="username" type="text" placeholder="Choose a username" autoComplete="username" required />
+                <input
+                value={username}
+                onChange={(e)=>setUsername(e.target.value)}
+                id="username" name="username" type="text" placeholder="Choose a username" autoComplete="username" required />
             </div>
             <div className="auth-field">
                 <label htmlFor="email">Email address</label>
-                <input id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required />
+                <input
+                value={email}
+                onChange={(e)=>setEmail(e.target.value)}
+                id="email" name="email" type="email" placeholder="you@example.com" autoComplete="email" required />
             </div>
-            <PasswordField isRegister />
-            <button className="auth-submit" type="submit">
-                Create account <span aria-hidden="true">↗</span>
+            <PasswordField isRegister value={password} onChange={(e)=>setPassword(e.target.value)} />
+            <button className="auth-submit" type="submit" disabled={loading} aria-busy={loading}>
+                {loading ? 'Creating account...' : 'Create account'} <span aria-hidden="true">↗</span>
             </button>
         </form>
 
