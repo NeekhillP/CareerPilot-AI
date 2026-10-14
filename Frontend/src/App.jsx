@@ -1,10 +1,11 @@
-
+import {RouterProvider} from 'react-router'
+import {router} from './app.routes.jsx'
 
 function App() {
 
   return (
     <>
-      <h1>Welcome to the App</h1>
+      <RouterProvider router={router}></RouterProvider>
     </>
   )
 }

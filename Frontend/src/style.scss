@@ -8,6 +8,44 @@ html,
 body,
 #root {
     height: 100%;
-    background-color: #161616;
+    background-color: #ffffff;
     width: 100%;
+}
+
+:root {
+    --scrollbar-thumb: #9aa8b3;
+    --scrollbar-track: #f6f8fa;
+    --scrollbar-hover: #667582;
+    --scrollbar-active: #223b50;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border: 2px solid var(--scrollbar-track);
+    border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-hover);
+}
+
+*::-webkit-scrollbar-thumb:active {
+    background: var(--scrollbar-active);
+}
+
+@media (forced-colors: active) {
+    :root {
+        scrollbar-color: auto;
+    }
 }
