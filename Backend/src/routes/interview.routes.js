@@ -13,5 +13,19 @@ const interviewRouter = Router();
  */
 interviewRouter.post('/', authUserMiddleware, upload.single("resume"), interviewController.generateInterviewReportController);
 
+/**
+ * @route GET /api/interviews/report/:id
+ * @description Get a specific interview report by ID
+ * @access Private
+ */
+interviewRouter.get('/report/:interviewId', authUserMiddleware, interviewController.getInterviewReportByIdController);
+
+
+/**
+ * @route GET /api/interviews
+ * @description Get all interview reports for the current user
+ * @access Private
+ */
+interviewRouter.get('/', authUserMiddleware, interviewController.getAllInterviewReportsController);
 
 export default interviewRouter;

@@ -1,0 +1,50 @@
+@font-face {
+    font-family: 'Manrope';
+    src: url('/fonts/Manrope-Variable.ttf') format('truetype');
+    font-style: normal;
+    font-weight: 200 800;
+    font-display: optional;
+}
+
+.interview-home,
+.interview-report {
+    --color-primary: #edf2f8;
+    --color-muted: #a6afbe;
+    --color-accent: #ff6b9d;
+    --color-border: #303a49;
+    --color-soft: #1e2533;
+    --color-surface: #151b24;
+    --color-danger: #ffb2bd;
+    --home-backdrop: #0d1117;
+    --home-control-border: #60708b;
+    --home-action: #d91d60;
+    --home-action-hover: #df2463;
+    --home-action-pressed: #be1652;
+    --home-on-action: #ffffff;
+    --scrollbar-thumb: var(--home-control-border);
+    --scrollbar-track: var(--color-soft);
+    --scrollbar-hover: var(--color-muted);
+    --scrollbar-active: var(--color-accent);
+
+    min-height: 100svh;
+    background: var(--home-backdrop);
+    color: var(--color-primary);
+    font-family: 'Manrope', 'Segoe UI', Arial, sans-serif;
+    color-scheme: dark;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    -webkit-font-smoothing: antialiased;
+
+    button, input, textarea {
+        font: inherit;
+    }
+
+    button, input[type='file'] {
+        cursor: pointer;
+    }
+
+    :focus-visible {
+        outline: 2px solid var(--color-accent);
+        outline-offset: 4px;
+    }
+}
+
