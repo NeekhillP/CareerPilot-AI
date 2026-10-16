@@ -1,10 +1,10 @@
 .auth-page {
-    --auth-ink: #223b50;
-    --auth-muted: #667582;
-    --auth-accent: #bce5de;
-    --auth-border: #d8e0e5;
-    --auth-soft: #f6f8fa;
-    --auth-white: #ffffff;
+    --auth-ink: var(--color-primary);
+    --auth-muted: var(--color-muted);
+    --auth-accent: var(--color-accent);
+    --auth-border: var(--color-border);
+    --auth-soft: var(--color-soft);
+    --auth-white: var(--color-surface);
     --auth-radius: 8px;
 
     display: grid;
