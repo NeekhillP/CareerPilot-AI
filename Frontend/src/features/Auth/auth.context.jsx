@@ -1,10 +1,10 @@
-import {createContext, useEffect, useState} from 'react';
+import {useEffect, useState} from 'react';
+import {AuthContext} from './authContext';
 import {getCurrentUser} from './Services/auth.api';
 
 
 
 
-export const AuthContext = createContext({})
 
 
 

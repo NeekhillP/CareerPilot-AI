@@ -57,6 +57,58 @@
     box-shadow: 0 20px 70px #00000024;
 }
 
+.report-title, .report-status {
+    max-width: 1320px;
+    margin: 0 auto;
+
+    h1 {
+        font-size: clamp(26px, 3vw, 38px);
+        line-height: 1.35;
+        letter-spacing: -1px;
+        overflow-wrap: anywhere;
+    }
+}
+
+.report-title {
+    padding: 8px 0 28px;
+
+    h1 {
+        margin-top: 12px;
+    }
+}
+
+.report-status {
+    min-height: 360px;
+    padding: 50px 32px;
+    border: 1px solid var(--color-border);
+    border-radius: 16px;
+    background: var(--color-surface);
+
+    p {
+        margin: 18px 0;
+        color: var(--color-muted);
+        font-size: 14px;
+        line-height: 1.8;
+    }
+
+    button {
+        min-height: 44px;
+        padding: 0 20px;
+        border: 1px solid var(--home-action);
+        border-radius: 8px;
+        background: var(--home-action);
+        color: var(--home-on-action);
+
+        &:hover {
+            background: var(--home-action-hover);
+        }
+
+        &:active {
+            background: var(--home-action-pressed);
+        }
+    }
+}
+
 .report-sidebar {
     display: flex;
     flex-direction: column;
@@ -196,16 +248,8 @@
     margin-bottom: 14px;
 }
 
-.report-sample-label {
-    padding: 3px 7px;
-    border: 1px solid var(--color-border);
-    border-radius: 4px;
-    color: var(--color-muted);
-    font-size: 9px;
-}
-
 .report-content-heading {
-    h1 {
+    h2 {
         margin-bottom: 13px;
         font-size: clamp(24px, 2.4vw, 34px);
         font-weight: 750;
@@ -269,7 +313,7 @@
         }
     }
 
-    h2 {
+    h3 {
         flex: 1;
         font-size: 14px;
         font-weight: 600;
@@ -293,7 +337,7 @@
 .report-question-body {
     padding: 0 18px 22px;
 
-    h3 {
+    h4 {
         margin-bottom: 8px;
         font-size: 11px;
         font-weight: 700;
@@ -345,7 +389,7 @@
         }
     }
 
-    h2 {
+    h3 {
         margin: 10px 0 15px;
         font-size: 17px;
         font-weight: 600;
@@ -544,7 +588,7 @@
         padding: 26px 20px;
     }
 
-    .report-content-heading h1 {
+    .report-content-heading h2 {
         font-size: 28px;
     }
 

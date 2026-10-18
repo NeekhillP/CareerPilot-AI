@@ -1,29 +1,66 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router'
+import { useInterview } from '../Hooks/useInterview'
 import '../home.scss'
 
 const Home = () => {
+  const navigate = useNavigate()
+  const {loading, generateReport} = useInterview()
   const [resume, setResume] = useState(null)
   const [fileError, setFileError] = useState('')
+  const [jobDescription, setJobDescription] = useState('')
+  const [selfDescription, setSelfDescription] = useState('')
+  const [jobError, setJobError] = useState('')
+  const [error, setError] = useState('')
+  const resumeInputRef = useRef(null)
 
   const handleResumeChange = (event) => {
     const file = event.target.files[0]
-
     if(!file) return
 
-    let error = ''
-
+    let message = ''
     if(!file.name.toLowerCase().endsWith('.pdf')){
-        error = 'Please choose a PDF resume.'
+        message = 'Please choose a PDF resume.'
     } else if(file.size > 3 * 1024 * 1024){
-        error = 'Your resume is too large. Choose a PDF no larger than 3 MB.'
+        message = 'Your resume is too large. Choose a PDF no larger than 3 MB.'
     } else if(file.size === 0){
-        error = 'This file is empty. Please choose another PDF.'
+        message = 'This file is empty. Please choose another PDF.'
     }
 
-    setFileError(error)
-    setResume(error ? null : file)
+    setFileError(message)
+    setResume(message ? null : file)
+    if(message) event.target.value = ''
+  }
 
-    if(error) event.target.value = ''
+  const handleGenerateReport = async (event) => {
+    event.preventDefault()
+    if(loading) return
+
+    setError('')
+    setJobError('')
+
+    if(!resume){
+        setFileError('Please choose a PDF resume.')
+        resumeInputRef.current.focus()
+        return
+    }
+
+    if(!jobDescription.trim()){
+        setJobError('Please enter a job description.')
+        event.currentTarget.elements.jobDescription.focus()
+        return
+    }
+
+    try{
+        const report = await generateReport({
+            resumeFile: resume,
+            selfDescription: selfDescription.trim(),
+            jobDescription: jobDescription.trim()
+        })
+        navigate('/interview/' + report._id)
+    } catch(error){
+        setError(error.response?.data?.message || 'We could not generate your report. Please try again.')
+    }
   }
 
   return (
@@ -48,7 +85,7 @@ const Home = () => {
                 <p>Bring your experience. Add the opportunity. Give your next interview a little direction.</p>
             </div>
 
-            <form className="interview-form" noValidate onSubmit={(event) => event.preventDefault()}>
+            <form className="interview-form" noValidate onSubmit={handleGenerateReport}>
                 <div className="interview-form-body">
                     <section className="home-background" aria-labelledby="background-title">
                         <div className="home-section-heading">
@@ -59,7 +96,7 @@ const Home = () => {
                         <div className="home-field">
                             <label htmlFor="resume">Resume</label>
                             <div className={`resume-picker${resume ? ' has-file' : ''}${fileError ? ' has-error' : ''}`}>
-                                <input id="resume" name="resume" type="file" accept=".pdf,application/pdf" onChange={handleResumeChange} aria-invalid={Boolean(fileError)} aria-describedby="resume-hint resume-feedback" />
+                                <input ref={resumeInputRef} disabled={loading} id="resume" name="resume" type="file" accept=".pdf,application/pdf" onChange={handleResumeChange} aria-invalid={Boolean(fileError)} aria-describedby="resume-hint resume-feedback" />
                                 <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
                                     <path d="M19 4H9a2 2 0 0 0-2 2v20a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V10L19 4Z" />
                                     <path d="M18 4v7h7M16 24V15m-4 4 4-4 4 4" />
@@ -76,7 +113,7 @@ const Home = () => {
                         <div className="home-field">
                             <label htmlFor="selfDescription">A little about you</label>
                             <p className="home-field-hint" id="self-description-hint">What should we know beyond your resume?</p>
-                            <textarea id="selfDescription" name="selfDescription" rows="5" placeholder="Your strengths, career goals, or the experience you want to highlight…" aria-describedby="self-description-hint" />
+                            <textarea value={selfDescription} onChange={(event) => setSelfDescription(event.target.value)} disabled={loading} id="selfDescription" name="selfDescription" rows="5" placeholder="Your strengths, career goals, or the experience you want to highlight…" aria-describedby="self-description-hint" />
                         </div>
                     </section>
 
@@ -88,14 +125,17 @@ const Home = () => {
                         <div className="home-field">
                             <label htmlFor="jobDescription">Job description</label>
                             <p className="home-field-hint" id="job-description-hint">Paste the role, responsibilities, and requirements.</p>
-                            <textarea id="jobDescription" name="jobDescription" rows="15" placeholder={'Paste the job description here…\n\nInclude the skills, responsibilities, and qualifications the company is looking for.'} aria-describedby="job-description-hint" />
+                            <textarea value={jobDescription} onChange={(event) => setJobDescription(event.target.value)} disabled={loading} required aria-invalid={Boolean(jobError)} id="jobDescription" name="jobDescription" rows="15" placeholder={'Paste the job description here…\n\nInclude the skills, responsibilities, and qualifications the company is looking for.'} aria-describedby={jobError ? "job-description-hint job-description-error" : "job-description-hint"} />
+                            {jobError && <p className="home-field-error" id="job-description-error">{jobError}</p>}
                         </div>
                     </section>
                 </div>
 
+                {error && <p className="home-form-error" role="alert">{error}</p>}
+
                 <div className="interview-form-footer">
-                    <p>A clearer picture. A more focused preparation plan.</p>
-                    <button type="submit" className="home-generate">Generate Report <span aria-hidden="true">↗</span></button>
+                    <p role="status">{loading ? 'Generating your report. This may take a moment.' : 'A clearer picture. A more focused preparation plan.'}</p>
+                    <button type="submit" className="home-generate" disabled={loading} aria-busy={loading}>{loading ? 'Generating...' : 'Generate Report'} <span aria-hidden="true">↗</span></button>
                 </div>
             </form>
 

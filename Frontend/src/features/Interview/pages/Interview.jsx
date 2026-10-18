@@ -1,6 +1,6 @@
-import { useState } from 'react'
-import { Link } from 'react-router'
-import sampleReport from '../data/sampleReport'
+import { useEffect, useState } from 'react'
+import { Link, useParams } from 'react-router'
+import { useInterview } from '../Hooks/useInterview'
 import '../interview.scss'
 
 const sections = [
@@ -9,9 +9,30 @@ const sections = [
     {id: 'preparationPlan', label: 'Roadmap', description: 'Turn your focus areas into a practical, day-by-day preparation plan.'}
 ]
 
-const Interview = ({report = sampleReport}) => {
+const Interview = () => {
+    const {interviewId} = useParams()
+    const {report, getReportById} = useInterview()
+    const [request, setRequest] = useState({id: null, error: ''})
+    const [retryCount, setRetryCount] = useState(0)
     const [activeSection, setActiveSection] = useState('technicalQuestions')
-    const skillGaps = report.skillGaps ?? []
+    const skillGaps = report?.skillGaps ?? []
+    const ready = request.id === interviewId && !request.error && report?._id === interviewId
+
+    useEffect(()=>{
+        const controller = new AbortController()
+
+        getReportById(interviewId, controller.signal)
+            .then(()=>{
+                if(!controller.signal.aborted) setRequest({id: interviewId, error: ''})
+            })
+            .catch((error)=>{
+                if(!controller.signal.aborted){
+                    setRequest({id: interviewId, error: error.response?.data?.message || 'We could not load your report. Please try again.'})
+                }
+            })
+
+        return ()=>controller.abort()
+    }, [interviewId, getReportById, retryCount])
 
     const handleTabKeyDown = (event) => {
         const currentIndex = sections.findIndex((section) => section.id === activeSection)
@@ -43,6 +64,23 @@ const Interview = ({report = sampleReport}) => {
                 <span className="report-wordmark">CareerPilot <span>AI</span></span>
             </header>
 
+            {request.id === interviewId && request.error ? (
+                <main className="report-status" role="alert">
+                    <h1>Report unavailable</h1>
+                    <p>{request.error}</p>
+                    <button type="button" onClick={()=>{
+                        setRequest({id: null, error: ''})
+                        setRetryCount((count)=>count + 1)
+                    }}>Try again</button>
+                </main>
+            ) : !ready ? (
+                <main className="report-status" role="status"><p>Loading your interview report...</p></main>
+            ) : (
+            <>
+            <div className="report-title">
+                <p className="report-eyebrow">YOUR INTERVIEW REPORT</p>
+                <h1>{report.title || 'Interview report'}</h1>
+            </div>
             <main className="report-layout">
                 <aside className="report-sidebar" aria-label="Report navigation and match score">
                     <p className="report-eyebrow">YOUR PREPARATION</p>
@@ -74,9 +112,8 @@ const Interview = ({report = sampleReport}) => {
                                 <div className="report-content-heading">
                                     <div className="report-heading-meta">
                                         <p className="report-eyebrow">YOUR INTERVIEW GUIDE</p>
-                                        {report === sampleReport && <span className="report-sample-label">Sample report</span>}
                                     </div>
-                                    <h1>{section.label}</h1>
+                                    <h2>{section.label}</h2>
                                     <p>{section.description}</p>
                                 </div>
 
@@ -89,7 +126,7 @@ const Interview = ({report = sampleReport}) => {
                                         {items.map((day, index) => (
                                             <li key={index}>
                                                 <span className="report-day">Day {day.day}</span>
-                                                <h2>{day.focus}</h2>
+                                                <h3>{day.focus}</h3>
                                                 <ul>{day.tasks.map((task, taskIndex) => <li key={taskIndex}>{task}</li>)}</ul>
                                             </li>
                                         ))}
@@ -100,15 +137,15 @@ const Interview = ({report = sampleReport}) => {
                                             <details className="report-question" key={index} open={index === 0}>
                                                 <summary>
                                                     <span className="report-question-number">{String(index + 1).padStart(2, '0')}</span>
-                                                    <h2>{question.question}</h2>
+                                                    <h3>{question.question}</h3>
                                                 </summary>
                                                 <div className="report-question-body">
                                                     <div className="report-intention">
-                                                        <h3>What they’re looking for</h3>
+                                                        <h4>What they’re looking for</h4>
                                                         <p>{question.intention}</p>
                                                     </div>
                                                     <div className="report-answer">
-                                                        <h3>How to approach your answer</h3>
+                                                        <h4>How to approach your answer</h4>
                                                         <p>{question.answer}</p>
                                                     </div>
                                                 </div>
@@ -142,6 +179,8 @@ const Interview = ({report = sampleReport}) => {
                     </div>
                 </aside>
             </main>
+            </>
+            )}
             <footer className="report-footer">Preparation with a little more direction.</footer>
         </div>
     )
