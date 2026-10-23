@@ -65,5 +65,10 @@ export const useInterview =()=>{
         }
     }
 
-    return {loading, report, reports, generateReport, getReportById, getAllReports, generateResumePdfFile};
+    const resetInterview = ()=>{
+        setReport(null);
+        setReports([]);
+    }
+
+    return {loading, report, reports, generateReport, getReportById, getAllReports, generateResumePdfFile, resetInterview};
 }

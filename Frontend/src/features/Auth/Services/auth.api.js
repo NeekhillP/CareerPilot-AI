@@ -35,13 +35,8 @@ export async function loginUser({email, password}){
 }
 
 export async function logoutUser(){
-    try{
-        const response = await api.get('/logout');
-        return response.data;
-    } catch(error){
-        console.error('Error logging out user:', error);
-        throw error;
-    }
+    const response = await api.get('/logout', {timeout: 15000});
+    return response.data;
 }
 
 export async function getCurrentUser(signal){

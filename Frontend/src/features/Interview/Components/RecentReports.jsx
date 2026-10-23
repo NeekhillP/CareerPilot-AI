@@ -2,11 +2,12 @@ import {useEffect, useState} from 'react'
 import {Link} from 'react-router'
 import {useInterview} from '../Hooks/useInterview'
 
-const RecentReports = () => {
+const RecentReports = ({disabled = false}) => {
     const {reports, getAllReports, loading} = useInterview()
     const [status, setStatus] = useState('loading')
     const [error, setError] = useState('')
     const [retryCount, setRetryCount] = useState(0)
+    const navigationDisabled = loading || disabled
 
     useEffect(()=>{
         const controller = new AbortController()
@@ -54,8 +55,8 @@ const RecentReports = () => {
                 <ul className="recent-reports-list">
                     {reports.map((report)=>(
                         <li key={report._id}>
-                            <Link to={`/interview/${report._id}`} aria-disabled={loading} tabIndex={loading ? -1 : undefined} onClick={(event)=>{
-                                if(loading) event.preventDefault()
+                            <Link to={`/interview/${report._id}`} aria-disabled={navigationDisabled} tabIndex={navigationDisabled ? -1 : undefined} onClick={(event)=>{
+                                if(navigationDisabled) event.preventDefault()
                             }}>
                                 <div className="recent-report-details">
                                     <h3>{report.title || 'Interview report'}</h3>

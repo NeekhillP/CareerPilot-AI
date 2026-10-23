@@ -34,15 +34,8 @@ export const useAuth = () => {
     };
 
     const handleLogout = async () => {
-        setLoading(true);
-        try {
-            await logoutUser();
-            setUser(null);
-        } catch (error) {
-            console.error('Logout failed:', error);
-        } finally {
-            setLoading(false);
-        }
+        await logoutUser();
+        setUser(null);
     };
 
     const handleGetCurrentUser = async () => {
