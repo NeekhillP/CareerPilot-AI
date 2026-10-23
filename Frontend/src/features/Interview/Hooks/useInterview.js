@@ -12,6 +12,7 @@ export const useInterview =()=>{
 
     const {loading, setLoading, report, setReport, reports, setReports} = context;
     const reportRequest = useRef(0);
+    const reportsRequest = useRef(0);
 
     const generateReport = async ({jobDescription, selfDescription, resumeFile})=>{
         setLoading(true);
@@ -40,16 +41,12 @@ export const useInterview =()=>{
         }
     }, [setLoading, setReport])
 
-    const getAllReports = async ()=>{
-        setLoading(true);
-        try{
-            const response = await getAllInterviewReports();
-            setReports(response.data);
-            return response.data;
-        } finally {
-            setLoading(false);
-        }
-    }
+    const getAllReports = useCallback(async (signal)=>{
+        const requestId = ++reportsRequest.current;
+        const response = await getAllInterviewReports(signal);
+        if(!signal?.aborted && requestId === reportsRequest.current) setReports(response.data);
+        return response.data;
+    }, [setReports])
 
     const generateResumePdfFile = async({interviewId, signal})=>{
         const pdf = await generateResumePdf({interviewId, signal});

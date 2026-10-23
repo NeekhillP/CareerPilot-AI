@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useInterview } from '../Hooks/useInterview'
+import RecentReports from '../Components/RecentReports'
 import '../home.scss'
 
 const Home = () => {
@@ -138,6 +139,8 @@ const Home = () => {
                     <button type="submit" className="home-generate" disabled={loading} aria-busy={loading}>{loading ? 'Generating...' : 'Generate Report'} <span aria-hidden="true">↗</span></button>
                 </div>
             </form>
+
+            <RecentReports />
 
             <footer className="home-footer">Built around your potential.</footer>
         </main>

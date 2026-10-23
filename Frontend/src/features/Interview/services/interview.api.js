@@ -21,8 +21,8 @@ export const getInterviewReportById = async (interviewId, signal) => {
     return response.data;
 }
 
-export const getAllInterviewReports = async () => {
-    const response = await api.get('/');
+export const getAllInterviewReports = async (signal) => {
+    const response = await api.get('/', {signal, timeout: 20000});
     return response.data;
 }
 

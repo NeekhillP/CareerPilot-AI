@@ -96,6 +96,8 @@ The report page loads the URL's saved report through `useInterview`, including a
 
 ## Do's and Don'ts
 
+Home includes a “Recent reports” list below the generation form. It loads all of the signed-in user's reports from `GET /api/interviews`, newest first, showing titles, creation dates in the viewer's local timezone, and match scores. Each row opens the existing report route. List loading and retry stay independent of generation; navigation is disabled while a new report is being generated. Abort signals prevent stale responses after navigation, and separate loading, empty, and error states avoid showing a previous session's cached list while fetching.
+
 The report title includes a rose “Download resume” action for the authenticated `/api/interviews/resume/pdf/:interviewId` endpoint. Downloads have their own pending state, keep the report usable, prevent duplicate requests, and cancel on navigation. Status text announces preparation, download initiation, and recoverable errors; JSON errors returned as blobs are decoded by the API service. Temporary download URLs are released after the browser starts the download. The action stacks below the title on narrow screens.
 
 - Keep entry forms legible, compact, and consistent.
