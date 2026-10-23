@@ -25,3 +25,28 @@ export const getAllInterviewReports = async () => {
     const response = await api.get('/');
     return response.data;
 }
+
+export const generateResumePdf = async({interviewId, signal}) =>{
+    try{
+        const response = await api.get(`/resume/pdf/${encodeURIComponent(interviewId)}`, {
+            responseType: 'blob',
+            timeout: 120000,
+            signal,
+        });
+
+        if(!response.data.size || !response.data.type.includes('application/pdf')){
+            throw new Error('The server did not return a PDF. Please try again.');
+        }
+
+        return response.data;
+    } catch(error){
+        if(error.response?.data instanceof Blob){
+            try{
+                error.response.data = JSON.parse(await error.response.data.text());
+            } catch {
+                // Non-JSON errors use the download's fallback message.
+            }
+        }
+        throw error;
+    }
+}

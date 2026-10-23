@@ -96,6 +96,8 @@ The report page loads the URL's saved report through `useInterview`, including a
 
 ## Do's and Don'ts
 
+The report title includes a rose “Download resume” action for the authenticated `/api/interviews/resume/pdf/:interviewId` endpoint. Downloads have their own pending state, keep the report usable, prevent duplicate requests, and cancel on navigation. Status text announces preparation, download initiation, and recoverable errors; JSON errors returned as blobs are decoded by the API service. Temporary download URLs are released after the browser starts the download. The action stacks below the title on narrow screens.
+
 - Keep entry forms legible, compact, and consistent.
 - Use the route illustration as the single expressive element.
 - Avoid social proof, invented metrics, decorative gradients, and new UI dependencies.

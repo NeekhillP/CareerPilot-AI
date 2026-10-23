@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { useInterview } from '../Hooks/useInterview'
 import '../interview.scss'
@@ -11,10 +11,13 @@ const sections = [
 
 const Interview = () => {
     const {interviewId} = useParams()
-    const {report, getReportById} = useInterview()
+    const {report, getReportById, generateResumePdfFile} = useInterview()
     const [request, setRequest] = useState({id: null, error: ''})
     const [retryCount, setRetryCount] = useState(0)
     const [activeSection, setActiveSection] = useState('technicalQuestions')
+    const [pdfRequest, setPdfRequest] = useState({id: null, status: '', message: ''})
+    const pdfController = useRef(null)
+    const pdfStatus = pdfRequest.id === interviewId ? pdfRequest.status : ''
     const skillGaps = report?.skillGaps ?? []
     const ready = request.id === interviewId && !request.error && report?._id === interviewId
 
@@ -31,8 +34,38 @@ const Interview = () => {
                 }
             })
 
-        return ()=>controller.abort()
+        return ()=>{
+            controller.abort()
+            pdfController.current?.abort()
+            pdfController.current = null
+        }
     }, [interviewId, getReportById, retryCount])
+
+    const handleDownloadResume = async () => {
+        if(pdfController.current || !ready) return
+
+        const controller = new AbortController()
+        pdfController.current = controller
+        setPdfRequest({id: interviewId, status: 'loading', message: 'Preparing your resume PDF. This may take a moment.'})
+
+        try{
+            await generateResumePdfFile({interviewId, signal: controller.signal})
+            if(!controller.signal.aborted){
+                setPdfRequest({id: interviewId, status: 'success', message: 'Your resume is ready. Download started.'})
+            }
+        } catch(error){
+            if(!controller.signal.aborted){
+                const message = error.code === 'ECONNABORTED'
+                    ? 'PDF generation took too long. Please try again.'
+                    : error.response?.status === 401
+                        ? 'Your session has expired. Sign in again to download your resume.'
+                        : error.response?.data?.message || 'We could not generate your resume PDF. Please try again.'
+                setPdfRequest({id: interviewId, status: 'error', message})
+            }
+        } finally {
+            if(pdfController.current === controller) pdfController.current = null
+        }
+    }
 
     const handleTabKeyDown = (event) => {
         const currentIndex = sections.findIndex((section) => section.id === activeSection)
@@ -78,8 +111,22 @@ const Interview = () => {
             ) : (
             <>
             <div className="report-title">
-                <p className="report-eyebrow">YOUR INTERVIEW REPORT</p>
-                <h1>{report.title || 'Interview report'}</h1>
+                <div className="report-title-heading">
+                    <p className="report-eyebrow">YOUR INTERVIEW REPORT</p>
+                    <h1>{report.title || 'Interview report'}</h1>
+                </div>
+                <div className="report-download">
+                    <button type="button" className="report-download-button" onClick={handleDownloadResume} disabled={pdfStatus === 'loading'} aria-busy={pdfStatus === 'loading'} aria-describedby="resume-download-status">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M12 3v12m-4-4 4 4 4-4M5 16v4h14v-4" />
+                        </svg>
+                        {pdfStatus === 'loading' ? 'Preparing PDF...' : 'Download resume'}
+                    </button>
+                    <p id="resume-download-status" className={`report-download-status${pdfStatus === 'error' ? ' is-error' : ''}`} role={pdfStatus === 'error' ? 'alert' : 'status'}>
+                        {pdfStatus ? pdfRequest.message : 'A resume PDF based on your profile and target role.'}
+                        {pdfStatus === 'error' && <span> Use Download resume to retry.</span>}
+                    </p>
+                </div>
             </div>
             <main className="report-layout">
                 <aside className="report-sidebar" aria-label="Report navigation and match score">
