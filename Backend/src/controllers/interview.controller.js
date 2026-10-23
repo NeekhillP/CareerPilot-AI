@@ -1,5 +1,5 @@
 import {PDFParse} from 'pdf-parse';
-import {generateInterviewReport} from '../services/ai.service.js';
+import {generateInterviewReport, generateResumePdf} from '../services/ai.service.js';
 import interviewReportModel from '../models/interviewReport.model.js';
 import mongoose from 'mongoose';
 
@@ -49,7 +49,7 @@ export async function generateInterviewReportController(req, res){
         }
 
         if(error.status === 503){
-            return res.status(503).json({message: 'Gemini is temporarily busy. Please try again shortly.'});
+            return res.status(503).json({message: 'The AI service is temporarily busy. Please try again shortly.'});
         }
 
         return res.status(502).json({message: 'We could not generate your report. Please try again.'});
@@ -105,4 +105,34 @@ export async function getAllInterviewReportsController(req, res){
         message: 'Interview reports fetched successfully',
         data: interviewReports
     })
+}
+
+/**
+ * @description Generate a PDF of the resume from the interview report
+ */
+export async function generateResumePdfController(req, res){
+    const {interviewId} = req.params;
+
+    if(!mongoose.isObjectIdOrHexString(interviewId)){
+        return res.status(400).json({message: 'Invalid interview report ID.'});
+    }
+
+    const interviewReport = await interviewReportModel.findOne({_id: interviewId, user: req.user._id});
+
+    if(!interviewReport){
+        return res.status(404).json({
+            message: 'Interview report not found'
+        })
+    }
+
+    const {resume, selfDescription, jobDescription} = interviewReport;
+
+    const pdfBuffer = await generateResumePdf({resume, selfDescription, jobDescription});
+
+    res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename="resume_${interviewId}.pdf"`,
+        'Content-Length': pdfBuffer.length,
+    })
+    res.status(200).send(pdfBuffer);
 }
